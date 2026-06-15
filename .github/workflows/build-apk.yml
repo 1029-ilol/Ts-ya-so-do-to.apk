@@ -10,27 +10,37 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git zlib1g-dev libffi-dev libssl-dev unzip zip
+
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Install buildozer
         run: pip install buildozer cython==0.29.37
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses
+
       - name: Build APK
         run: buildozer android debug 2>&1 | tee build.log
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: dinogame-debug-apk
           path: bin/*.apk
           if-no-files-found: warn
+
       - name: Upload log on failure
         if: failure()
         uses: actions/upload-artifact@v4
